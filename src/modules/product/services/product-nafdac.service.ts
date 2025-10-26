@@ -87,7 +87,7 @@ export class ProductNafdacService {
             details[key] = val;
           }
         });
-
+        console.log(details)
         return { success: true, message: successMsg, data: details };
       }
 

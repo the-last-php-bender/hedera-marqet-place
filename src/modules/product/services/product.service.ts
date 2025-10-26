@@ -5,6 +5,9 @@ import type { Model } from 'mongoose';
 import { Product } from '../schema/product.schema';
 import { CreateProductDto } from '../dto/create-product.dto';
 import { ProductNafdacService } from '../services/product-nafdac.service';
+import { ConfigService } from '@nestjs/config';
+import { paginate, PaginatedResult } from 'src/common/utils/pagination.utils';
+import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 
 @Injectable()
 export class ProductService {
@@ -13,36 +16,36 @@ export class ProductService {
   constructor(
     @InjectModel(Product.name) private productModel: Model<Product>,
     private readonly nafdacService: ProductNafdacService,
+    private configService: ConfigService
   ) { }
 
-  /**
-   * Create product. If nafdacNo is provided, verify it and attach verification data.
-   */
-  async create(data: CreateProductDto & { thumbnail?: string }): Promise<Product> {
+  async create(data: CreateProductDto): Promise<Product> {
     const { nafdacNo } = data;
-    let verified = false;
+    const verifyRes = await this.nafdacService.verify(String(nafdacNo));
 
-    if (nafdacNo) {
-      const verifyRes = await this.nafdacService.verify(String(nafdacNo));
-
-      if (!verifyRes.success) {
-        throw new BadRequestException(verifyRes.message);
-      }
-
-      verified = verifyRes.success
-    } else {
-      this.logger.debug('No nafdacNo provided — skipping verification');
+    if (!verifyRes.success) {
+      throw new BadRequestException('This product does not have a verified nafDac No.');
     }
 
     const created = await this.productModel.create({
       ...data,
-      verified,
+      thumbnail: `${this.configService.get<string>('app.base_url')}/${data.thumbnail}`,
+      verified:verifyRes.success,
     });
 
     return created;
   }
 
-  async findAll(): Promise<Product[]> {
-    return this.productModel.find().sort({ createdAt: -1 }).exec();
+  async findAll(params: PaginationQueryDto): Promise<PaginatedResult<Product>> {
+    const filter = {};
+
+    const result = await paginate<Product>({
+      model: this.productModel,
+      filter,
+      params,
+      sort: { createdAt: -1 },
+    });
+
+    return result;
   }
 }

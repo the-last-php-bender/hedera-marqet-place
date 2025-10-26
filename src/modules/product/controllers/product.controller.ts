@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, UploadedFile, UseInterceptors, Query } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -6,6 +6,7 @@ import { ApiTags, ApiBody, ApiConsumes, ApiCreatedResponse, ApiOkResponse } from
 import { CreateProductDto } from '../dto/create-product.dto';
 import { ProductResponseDto } from '../dto/product-response.dto';
 import { ProductService } from '../services/product.service';
+import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 
 @ApiTags('Products')
 @Controller('products')
@@ -36,7 +37,7 @@ export class ProductController {
 
   @Get()
   @ApiOkResponse({ type: [ProductResponseDto] })
-  async findAll() {
-    return this.productService.findAll();
+  async findAll(@Query() query: PaginationQueryDto) {
+    return this.productService.findAll(query);
   }
 }
