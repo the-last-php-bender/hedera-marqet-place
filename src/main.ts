@@ -27,6 +27,15 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
+    app.getHttpAdapter().get('/api/v1/health', (req, res:express.Response) => {
+    res.status(200).json({
+      status: 'ok',
+      uptime: process.uptime(),
+      message: 'API is healthy',
+      timestamp: new Date().toISOString(),
+    });
+  });
+
   await app.listen(process.env.PORT ?? 3000);
   console.log(`🚀 Server running on ${process.env.BASE_URL}`);
 }
