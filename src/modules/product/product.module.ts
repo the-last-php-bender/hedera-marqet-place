@@ -4,11 +4,12 @@ import { Product, ProductSchema } from './schema/product.schema';
 import { ProductController } from './controllers/product.controller';
 import { ProductService } from './services/product.service';
 import { ProductNafdacService } from './services/product-nafdac.service';
+import { HederaService } from './services/product-hedera.service';
 
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }])],
   controllers: [ProductController],
-  providers: [ProductService,ProductNafdacService],
+  providers: [ProductService,ProductNafdacService, HederaService],
 })
 export class ProductModule {}

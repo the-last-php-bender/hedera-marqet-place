@@ -7,5 +7,10 @@ export default () => ({
     },
     database:{
         url:process.env.DB_URL ?? "your_database_ url"
+    },
+    hedera:{
+        operatorId:process.env.OPERATOR_ID?? 'your_operator_id',
+        operatorkey:process.env.OPERATOR_KEY?? 'your_operator_key',
+        topicId:process.env.TOPIC_ID?? "your_topic_id"
     }
 });
