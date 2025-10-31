@@ -5,24 +5,44 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class HederaService {
+  private client: Client;
+  private topicId: TopicId;
 
-  constructor( private configService: ConfigService){
+  constructor(private configService: ConfigService) {
+    const operatorId = this.configService.get<string>('hedera.operatorId') ?? '';
+    const operatorKey = this.configService.get<string>('hedera.operatorKey') ?? '';
+    const topic = this.configService.get<string>('hedera.topicId') ?? '';
 
+    console.log('✅ Hedera Loaded Config');
+    console.log('Operator ID:', operatorId);
+    console.log('Topic ID:', topic);
+    console.log(
+      'Operator Key:',
+      operatorKey
+        ? `${operatorKey.substring(0, 6)}...${operatorKey.slice(-6)}`
+        : 'NOT SET'
+    );
+
+    this.client = Client.forTestnet().setOperator(operatorId, operatorKey);
+    this.topicId = TopicId.fromString(topic);
   }
-    private client = Client.forTestnet().setOperator(
-    this.configService.get<string>('hedera.operatorId')??'',
-    this.configService.get<string>('hedera.operatorKey')??''
-  );
-
-  private topicId = TopicId.fromString(this.configService.get<string>('hedera.topicId')??'');
 
   async publish(data: any) {
-    const hash = crypto.createHash('sha256').update(JSON.stringify(data)).digest('hex');
+    const hash = crypto
+      .createHash('sha256')
+      .update(JSON.stringify(data))
+      .digest('hex');
+
     const tx = await new TopicMessageSubmitTransaction({
       topicId: this.topicId,
-      message: hash
+      message: hash,
     }).execute(this.client);
+
     const receipt = await tx.getReceipt(this.client);
-    return { hash, txId: receipt.status.toString() };
+
+    return {
+      hash,
+      txId: receipt.status.toString(),
+    };
   }
 }
