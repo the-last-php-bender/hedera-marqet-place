@@ -86,4 +86,13 @@ async getProductReviews(productId: string, params: PaginationQueryDto) {
   return result;
 }
 
+async verifyReview(reviewId: string) {
+  const review = await this.reviewModel.findById(reviewId);
+  if (!review) throw new BadRequestException('Review not found');
+
+  const exists = await this.hedera.verifyHash(review.hederaHash);
+  return { verified: exists, hash: review.hederaHash };
+}
+
+
 }
