@@ -52,7 +52,7 @@ export class HederaService {
             resolve(false);
           },
           (msg) => {
-            const chainMessage = Buffer.from(msg.contents).toString();
+            const chainMessage = Buffer.from(msg.contents).toString("hex");
 
             if (chainMessage === hash) {
               verified = true;

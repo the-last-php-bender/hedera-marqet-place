@@ -66,10 +66,10 @@ export class ProductController {
     return this.productService.getProductReviews(productId, params);
   }
 
-@Get('reviews/verify/:reviewId')
-async verifyProductReview(
-  @Param('reviewId') reviewId: string
-) {
-  return this.productService.verifyReview(reviewId);
-}
+  @Get('reviews/verify/:reviewId')
+  async verifyProductReview(
+    @Param('reviewId') reviewId: string
+  ) {
+    return this.productService.verifyReview(reviewId);
+  }
 }
