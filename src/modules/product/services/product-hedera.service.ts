@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Client, TopicId, TopicMessageSubmitTransaction } from '@hashgraph/sdk';
 import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
+import { PublishReviewPayload } from '../interface/hedera.interface';
 
 @Injectable()
 export class HederaService {
@@ -16,22 +17,26 @@ export class HederaService {
     this.topicId = TopicId.fromString(topic);
   }
 
-  async publish(data: any) {
-    const hash = crypto
-      .createHash('sha256')
-      .update(JSON.stringify(data))
-      .digest('hex');
+async publish(
+  data: PublishReviewPayload
+): Promise<{ hash: string; txId: string; status: string }> {
+  const hash = crypto
+    .createHash('sha256')
+    .update(JSON.stringify(data))
+    .digest('hex');
 
-    const tx = await new TopicMessageSubmitTransaction({
-      topicId: this.topicId,
-      message: hash,
-    }).execute(this.client);
+  const tx = await new TopicMessageSubmitTransaction({
+    topicId: this.topicId,
+    message: hash,
+  }).execute(this.client);
 
-    const receipt = await tx.getReceipt(this.client);
+  const receipt = await tx.getReceipt(this.client);
 
-    return {
-      hash,
-      txId: receipt.status.toString(),
-    };
-  }
+  return {
+    hash,
+    txId: tx.transactionId.toString(),  
+    status: receipt.status.toString(), 
+  };
+}
+
 }

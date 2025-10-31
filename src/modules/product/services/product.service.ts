@@ -11,6 +11,7 @@ import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 import { ProductReview } from '../schema/product-review.schema';
 import { HederaService } from './product-hedera.service';
 import { CreateReviewDto } from '../dto/create-review.dto';
+import { PublishReviewPayload } from '../interface/hedera.interface';
 
 @Injectable()
 export class ProductService {
@@ -58,7 +59,7 @@ export class ProductService {
       const {rating, review}= dto
     if (rating < 1 || rating > 5) throw new BadRequestException('Invalid rating');
 
-    const payload = { userId, productId, rating, review };
+    const payload : PublishReviewPayload= { userId, productId, rating, review };
     const { hash, txId } = await this.hedera.publish(payload);
 
     return await this.reviewModel.create({
