@@ -12,17 +12,6 @@ export class HederaService {
     const operatorId = this.configService.get<string>('hedera.operatorId') ?? '';
     const operatorKey = this.configService.get<string>('hedera.operatorKey') ?? '';
     const topic = this.configService.get<string>('hedera.topicId') ?? '';
-
-    console.log('✅ Hedera Loaded Config');
-    console.log('Operator ID:', operatorId);
-    console.log('Topic ID:', topic);
-    console.log(
-      'Operator Key:',
-      operatorKey
-        ? `${operatorKey.substring(0, 6)}...${operatorKey.slice(-6)}`
-        : 'NOT SET'
-    );
-
     this.client = Client.forTestnet().setOperator(operatorId, operatorKey);
     this.topicId = TopicId.fromString(topic);
   }
